@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.demo.mapper.IXblogMapper">
+    <insert id="addReplys">
+        INSERT reply_detailed(b_id,u_id,detailed) VALUES(
+        #{replyDetailed.bId},
+        #{replyDetailed.uId},
+        #{replyDetailed.detailed}
+        )
+    </insert>
+
+    <!--初始化查询列表数据-->
+    <select id="findsXblog" resultType="com.demo.vo.XblogVo">
+        SELECT bid,btitle,userName,read_number,reply_time,(SELECT COUNT(*) FROM reply_detailed AS rd
+        LEFT JOIN xblog AS xb
+        ON rd.b_id = xb.bid
+        WHERE b_id=xblog.bid) counts FROM xblog
+        LEFT JOIN t_user ON xblog.author_id=t_user.id
+        <if test="xin!=0 and xin!=null">
+            ORDER BY publish_time DESC
+        </if>
+        <if test="re!=0 and re!=null">
+            ORDER BY read_number DESC
+        </if>
+
+    </select>
+
+    <!--查询标题名称和内容-->
+    <select id="findsXb" resultType="com.demo.entity.Xblog">
+        SELECT btitle,content FROM xblog WHERE bid=#{id}
+    </select>
+
+    <select id="findDetails" resultType="com.demo.vo.XblogVo">
+        SELECT reply_time,detailed,userName FROM reply_detailed AS re
+        LEFT JOIN t_user ON re.u_id=t_user.id WHERE b_id=#{id}
+    </select>
+    <select id="findsLogin" resultType="java.lang.Integer">
+        SELECT id FROM t_user WHERE userCode=#{name}  AND password=#{pwd}
+    </select>
+</mapper>
